@@ -1,0 +1,1 @@
+These elements were taken from the HL7 FHIR specification which is under CC0 license.

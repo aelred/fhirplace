@@ -1,0 +1,37 @@
+tr:nth-child(odd) {
+    background-color: #F7F7F7;
+}
+
+tr:nth-child(even) {
+    background-color: white
+}
+
+td {
+    background-color: inherit
+}
+
+.app {
+    max-width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+textarea.subtle,
+input.subtle {
+    resize: none;
+    border: 0;
+    background-color: inherit;
+}
+
+h1 {
+    font-size: 25.2px;
+}
+
+input,
+textarea,
+select,
+.select {
+    font-family: verdana;
+    font-size: inherit;
+    field-sizing: content;
+}
