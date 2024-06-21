@@ -35,3 +35,12 @@ select,
     font-size: inherit;
     field-sizing: content;
 }
+
+div.select,
+.select div {
+    padding: 0px
+}
+
+div.select {
+    min-height: 0px;
+}

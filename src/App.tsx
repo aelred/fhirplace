@@ -1,4 +1,4 @@
-import StructureDefinitionEditor from './StructureDefinitionEditor';
+import StructureDefinitionEditor from './editor/StructureDefinitionEditor';
 import './hl7fhir/fhir.css';
 import './style.css';
 

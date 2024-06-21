@@ -5,7 +5,6 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## To do
 
 - Support fixed URIs and strings
-- Support narrowing reference types
 - Support extensional value sets
 - Support basic slicing
 

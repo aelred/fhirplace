@@ -2,8 +2,8 @@ import { ElementDefinition, StructureDefinition, ValueSet } from "fhir/r5";
 import { ReactElement, useState } from "react";
 import { JsonView } from "react-json-view-lite";
 import 'react-json-view-lite/dist/index.css';
-import { ElementDefinitionEditor } from "./ElementDefinitionEditor";
-import { AllResourceTypes, STRUCTURE_DEFINITIONS } from "./fhir";
+import { AllResourceTypes, STRUCTURE_DEFINITIONS } from "../fhir";
+import ElementDefinitionEditor from "./ElementDefinitionEditor";
 
 export default function StructureDefinitionEditor() {
     const [name, setName] = useState<string>("MyProfile");
@@ -32,8 +32,6 @@ export default function StructureDefinitionEditor() {
         indent[level] = true;
         indents[element.path] = [...indent.slice(1)];
     }
-
-    console.log(indents)
 
     function showFhir(): StructureDefinition {
         return {
@@ -84,7 +82,7 @@ export default function StructureDefinitionEditor() {
                 </tr>
                 {
                     snapshot.map(element => <ElementDefinitionEditor
-                        base={element} differential={differentials[element.id!] || { id: element.id, path: element.path }} onChange={updateElement} indent={indents[element.path]} nextIndent={nextIndents[element.path]}
+                        url={baseDefinition.url} base={element} diff={differentials[element.id!] || { id: element.id, path: element.path }} onChange={updateElement} indent={indents[element.path]} nextIndent={nextIndents[element.path]}
                     />)
                 }
             </tbody>
