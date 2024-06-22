@@ -4,9 +4,18 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## To do
 
+
+### Essential features
+
 - Support fixed URIs and strings
 - Support extensional value sets
 - Support basic slicing
+
+
+### Nice-to-have
+
+- Strike-through disallowed elements
+- Differential view (maybe by default)
 
 ## Available Scripts
 

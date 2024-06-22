@@ -6,8 +6,12 @@ tr:nth-child(even) {
     background-color: white
 }
 
-td {
-    background-color: inherit
+td.hierarchy {
+    background-color: inherit;
+    vertical-align: top;
+    text-align: left;
+    border: 0px #F0F0F0 solid;
+    padding: 0px 4px 0px 4px;
 }
 
 .app {
@@ -41,6 +45,25 @@ div.select,
     padding: 0px
 }
 
-div.select {
+.select div {
     min-height: 0px;
+}
+
+.type,
+.type>span {
+    display: flex;
+}
+
+.select .select__control,
+select {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    min-height: none;
+    cursor: pointer;
+    background-color: inherit;
+}
+
+.select__indicator-separator {
+    display: none;
 }

@@ -20,8 +20,22 @@ export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
 
     const selected = options.filter(opt => (diff || base).includes(opt.value));
 
-    return <Select defaultValue={selected} isMulti closeMenuOnSelect={false} options={options} onChange={(newValue, _) => onChange(newValue.map(nv => nv.value))} className="select"
-    />;
+    return (
+        <span>
+            {"("}
+            <Select
+                isMulti
+                defaultValue={selected}
+                options={options}
+                closeMenuOnSelect={false}
+                isClearable={false}
+                onChange={(newValue, _) => onChange(newValue.map(nv => nv.value))}
+                className="select"
+                classNamePrefix="select"
+            />
+            {")"}
+        </span>
+    );
 }
 
 function shortProfileName(profile: string): string {

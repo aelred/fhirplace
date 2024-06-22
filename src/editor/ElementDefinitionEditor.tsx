@@ -8,25 +8,26 @@ import icon_resource from 'hl7fhir/icon_resource.png';
 import icon_reuse from 'hl7fhir/icon_reuse.png';
 import tbl_blank from 'hl7fhir/tbl_blank.png';
 import tbl_spacer from 'hl7fhir/tbl_spacer.png';
-import tbl_vjoin from 'hl7fhir/tbl_vjoin.png';
-import tbl_vjoin_end from 'hl7fhir/tbl_vjoin_end.png';
 import tbl_vline from 'hl7fhir/tbl_vline.png';
 import { ReactElement } from "react";
 import { toMap } from "../util";
 import CardinalityEditor from "./CardinalityEditor";
 import StringEditor from "./StringEditor";
 import TargetProfilesEditor from "./TargetProfilesEditor";
+import VJoin from "./VJoin";
 
 type Props = {
     url: string;
     base: ElementDefinition;
     diff: ElementDefinition;
-    onChange: (element: ElementDefinition) => any;
+    isOpen?: boolean;
+    onChange: (element: ElementDefinition) => void;
+    setOpen: (open: boolean) => void;
     indent: boolean[];
     nextIndent: boolean[];
 }
 
-export default function ElementDefinitionEditor({ url, base, diff, onChange, indent, nextIndent }: Props) {
+export default function ElementDefinitionEditor({ url, base, diff, isOpen, onChange, setOpen, indent, nextIndent }: Props) {
     const name = base.path.replaceAll(/[^.]*\./g, "");
     const types = base.type || [];
     const contentReference = diff.contentReference || base.contentReference;
@@ -60,33 +61,35 @@ export default function ElementDefinitionEditor({ url, base, diff, onChange, ind
         .filter(c => c.source === url)
 
     return (<tr style={{ border: "0px #F0F0F0 solid", padding: "0px", verticalAlign: "top" }}>
-        <td style={{ verticalAlign: "top", textAlign: "left", border: "0px #F0F0F0 solid", padding: "0px 4px 0px 4px", whiteSpace: "nowrap", backgroundImage }} className="hierarchy">
+        <td style={{ whiteSpace: "nowrap", backgroundImage }} className="hierarchy">
             <img src={tbl_spacer} alt="." style={{ backgroundColor: "inherit" }} className="hierarchy" />
             {indent.slice(0, -1).map(drawLine => {
                 const image = drawLine ? tbl_vline : tbl_blank;
                 return (<img src={image} alt="." style={{ backgroundColor: "inherit" }} className="hierarchy" />)
             })}
-            {vjoinImage(indent, nextIndent)}
+            {indent.length > 0 && (<VJoin isOpen={isOpen} isLastChild={!nextIndent[indent.length - 1]} setOpen={setOpen} />)}
             <img src={icon} alt="." style={{ backgroundColor: "inherit" }} className="hierarchy" />
             {" "}
             {name}
         </td>
-        <td style={{ verticalAlign: "top", textAlign: "left", border: "0px #F0F0F0 solid", padding: "0px 4px 0px 4px" }} className="hierarchy">
+        <td className="hierarchy">
             {(diff.isModifier || base.isModifier) && <span style={{ paddingLeft: "3px", paddingRight: "3px", color: "black" }}>?!</span>}
             {(diff.mustSupport || base.mustSupport) && <span style={{ paddingLeft: "3px", paddingRight: "3px", color: "black" }}>S</span>}
             {(diff.isSummary || base.isSummary) && <span style={{ paddingLeft: "3px", paddingRight: "3px", color: "black" }}>Σ</span>}
             {/* TODO: I/NE/TU/N/D flags */}
         </td>
-        <td style={{ verticalAlign: "top", textAlign: "left", border: "0px #F0F0F0 solid", padding: "0px 4px 0px 4px" }} className="hierarchy">
+        <td className="hierarchy">
             <CardinalityEditor base={{ min: base.min!, max: base.max! }} diff={diff} onChange={merge} />
         </td>
-        <td style={{ verticalAlign: "top", textAlign: "left", border: "0px #F0F0F0 solid", padding: "0px 4px 0px 4px" }} className="hierarchy">
-            {/* TODO: handle multiple types */}
-            {renderType(types[0])}
-            {baseTargetProfiles &&
-                <TargetProfilesEditor base={baseTargetProfiles} diff={diffTargetProfiles} onChange={targetProfile => merge({ type: [{ ...(diff.type || [])[0] || {}, targetProfile }] })} />}
+        <td className="hierarchy">
+            <span className="type">
+                {/* TODO: handle multiple types */}
+                {renderType(types[0])}
+                {baseTargetProfiles &&
+                    <TargetProfilesEditor base={baseTargetProfiles} diff={diffTargetProfiles} onChange={targetProfile => merge({ type: [{ ...(diff.type || [])[0] || {}, targetProfile }] })} />}
+            </span>
         </td>
-        <td style={{ verticalAlign: "top", textAlign: "left", border: "0px #F0F0F0 solid", padding: "0px 4px 0px 4px" }} className="hierarchy">
+        <td className="hierarchy">
             <StringEditor base={base.short} diff={diff.short} onChange={short => merge({ short })} />
             <br />
             {allConstraints.map(c => <span><span style={{ fontStyle: "italic" }}>+ Rule: {c.human}</span><br /></span>)}
@@ -99,11 +102,4 @@ function renderType(type: ElementDefinitionType | undefined): ReactElement | und
     const extensions = type?.extension || [];
     const typeExtension = extensions.find(ext => ext.url === "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type")?.valueUrl
     return <span>{typeExtension || type?.code || ""}</span>
-}
-
-function vjoinImage(indent: boolean[], nextIndent: boolean[]): ReactElement | undefined {
-    if (indent.length > 0) {
-        const joinImage = nextIndent[indent.length - 1] ? tbl_vjoin : tbl_vjoin_end;
-        return <img src={joinImage} alt="." style={{ backgroundColor: "inherit" }} className="hierarchy" />;
-    }
 }

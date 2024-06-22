@@ -2,7 +2,7 @@ import { ElementDefinition, StructureDefinition, ValueSet } from "fhir/r5";
 import { ReactElement, useState } from "react";
 import { JsonView } from "react-json-view-lite";
 import 'react-json-view-lite/dist/index.css';
-import { AllResourceTypes, STRUCTURE_DEFINITIONS } from "../fhir";
+import { AllResourceTypes, Path, STRUCTURE_DEFINITIONS } from "../fhir";
 import ElementDefinitionEditor from "./ElementDefinitionEditor";
 
 export default function StructureDefinitionEditor() {
@@ -10,11 +10,23 @@ export default function StructureDefinitionEditor() {
     const [type, setType] = useState<string>("Observation");
     const [differentials, setDifferentials] = useState<{ [id: string]: ElementDefinition }>({})
 
+    const [openElements, setOpenElements] = useState<{ [id: string]: boolean }>({})
+
     const baseDefinition = STRUCTURE_DEFINITIONS[type];
     const snapshot = baseDefinition.snapshot?.element || []
 
+    const visibleSnapshot = snapshot.filter(element =>
+        [...Path.parse(element.path).ancestors()].every(ancestor => openElements[ancestor.value()] !== false)
+    );
+
+    const parentElements: { [path: string]: boolean } = {}
+    for (var element of snapshot) {
+        var parent = Path.parse(element.path).parent()
+        if (parent) parentElements[parent.value()] = true
+    }
+
     function* orderedDifferentials(): Generator<ElementDefinition> {
-        for (var element of snapshot) {
+        for (var element of visibleSnapshot) {
             if (element.id! in differentials) {
                 yield differentials[element.id!];
             }
@@ -24,7 +36,7 @@ export default function StructureDefinitionEditor() {
     const indents: { [path: string]: boolean[] } = {}
     const nextIndents: { [path: string]: boolean[] } = {}
     var indent: boolean[] = []
-    for (var element of snapshot.toReversed()) {
+    for (var element of visibleSnapshot.toReversed()) {
         nextIndents[element.path] = [...indent.slice(1)];
         const level = (element.path.match(/\./g) || []).length;
         while (indent.length < level) indent.push(false);
@@ -56,6 +68,10 @@ export default function StructureDefinitionEditor() {
         setDifferentials(newDifferentials);
     }
 
+    function setOpen(path: string, isOpen: boolean) {
+        setOpenElements({ ...openElements, [path]: isOpen })
+    }
+
     return (<form>
         <h1><input value={name} onChange={e => setName(e.target.value)} placeholder="Name" className="subtle" /></h1>
         <select value={type} onChange={e => setType(e.target.value)}>
@@ -81,8 +97,15 @@ export default function StructureDefinitionEditor() {
                     </th>
                 </tr>
                 {
-                    snapshot.map(element => <ElementDefinitionEditor
-                        url={baseDefinition.url} base={element} diff={differentials[element.id!] || { id: element.id, path: element.path }} onChange={updateElement} indent={indents[element.path]} nextIndent={nextIndents[element.path]}
+                    visibleSnapshot.map(element => <ElementDefinitionEditor
+                        url={baseDefinition.url}
+                        base={element}
+                        diff={differentials[element.id!] || { id: element.id, path: element.path }}
+                        isOpen={parentElements[element.path] ? openElements[element.path] !== false : undefined}
+                        onChange={updateElement}
+                        setOpen={value => setOpen(element.path, value)}
+                        indent={indents[element.path]}
+                        nextIndent={nextIndents[element.path]}
                     />)
                 }
             </tbody>
