@@ -101,7 +101,7 @@ export default function StructureDefinitionEditor() {
                         url={baseDefinition.url}
                         base={element}
                         diff={differentials[element.id!] || { id: element.id, path: element.path }}
-                        isOpen={parentElements[element.path] ? openElements[element.path] !== false : undefined}
+                        isOpen={parentElements[element.path] || (element.type?.length || 0) > 1 ? openElements[element.path] !== false : undefined}
                         onChange={updateElement}
                         setOpen={value => setOpen(element.path, value)}
                         indent={indents[element.path]}
@@ -111,6 +111,11 @@ export default function StructureDefinitionEditor() {
             </tbody>
         </table>
         <JsonView data={showFhir()} />
+        <button onClick={(e) => {
+            e.preventDefault()
+            navigator.clipboard.writeText(JSON.stringify(showFhir(), null, 2))
+        }
+        }>Copy to clipboard</button>
     </form>)
 }
 

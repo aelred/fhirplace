@@ -1,4 +1,4 @@
-import { CodeSystem, CodeSystemConcept, StructureDefinition, ValueSet } from "fhir/r5";
+import { CodeSystem, CodeSystemConcept, ElementDefinitionType, StructureDefinition, ValueSet } from "fhir/r5";
 import "./util";
 import { assert, toMap } from "./util";
 export const FhirTypes: CodeSystem = require("hl7.fhir.r5.core/CodeSystem-fhir-types.json")
@@ -21,6 +21,67 @@ export const TYPES: string[] = [...getCodes(FhirTypes)];
 
 export const STRUCTURE_DEFINITIONS: { [index: string]: StructureDefinition } =
     toMap(TYPES, type => type, type => require(`hl7.fhir.r5.core/StructureDefinition-${type}.json`))
+
+export const CHOICE_TYPES: string[] = [
+    "base64Binary",
+    "boolean",
+    "canonical",
+    "code",
+    "date",
+    "dateTime",
+    "decimal",
+    "id",
+    "instant",
+    "integer",
+    "integer64",
+    "markdown",
+    "oid",
+    "positiveInt",
+    "string",
+    "time",
+    "unsignedInt",
+    "uri",
+    "url",
+    "uuid",
+    "Address",
+    "Age",
+    "Annotation",
+    "Attachment",
+    "CodeableConcept",
+    "CodeableReference",
+    "Coding",
+    "ContactPoint",
+    "Count",
+    "Distance",
+    "Duration",
+    "HumanName",
+    "Identifier",
+    "Money",
+    "Period",
+    "Quantity",
+    "Range",
+    "Ratio",
+    "RatioRange",
+    "Reference",
+    "SampledData",
+    "Signature",
+    "Timing",
+    "ContactDetail",
+    "DataRequirement",
+    "Expression",
+    "ParameterDefinition",
+    "RelatedArtifact",
+    "TriggerDefinition",
+    "UsageContext",
+    "Availability",
+    "ExtendedContactDetail",
+]
+
+export function getTypeCode(type: ElementDefinitionType): string {
+    const extensions = type.extension || [];
+    const typeExtension = extensions.find(ext => ext.url === "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type")?.valueUrl
+    return typeExtension || type.code
+}
 
 
 export class Path {

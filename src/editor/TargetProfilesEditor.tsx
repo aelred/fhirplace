@@ -8,7 +8,7 @@ type Props = {
 
 export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
     if (base.length === 1) {
-        return <span>({`${shortProfileName(base[0])}`})</span>;
+        return <>({`${shortProfileName(base[0])}`})</>;
     }
 
     const options = base.map(profile => {
@@ -21,11 +21,11 @@ export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
     const selected = options.filter(opt => (diff || base).includes(opt.value));
 
     return (
-        <span>
+        <>
             {"("}
             <Select
                 isMulti
-                defaultValue={selected}
+                value={selected}
                 options={options}
                 closeMenuOnSelect={false}
                 isClearable={false}
@@ -34,7 +34,7 @@ export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
                 classNamePrefix="select"
             />
             {")"}
-        </span>
+        </>
     );
 }
 

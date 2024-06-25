@@ -24,7 +24,9 @@ textarea.subtle,
 input.subtle {
     resize: none;
     border: 0;
+    padding: 0px;
     background-color: inherit;
+    vertical-align: inherit;
 }
 
 h1 {
@@ -66,4 +68,8 @@ select {
 
 .select__indicator-separator {
     display: none;
+}
+
+.select__input-container {
+    display: none !important;
 }
