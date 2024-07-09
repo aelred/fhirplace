@@ -1,3 +1,4 @@
+import { shortProfileName } from "fhir";
 import Select from "react-select";
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
 
 export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
     if (base.length === 1) {
-        return <>({`${shortProfileName(base[0])}`})</>;
+        return <>({shortProfileName(base[0])})</>;
     }
 
     const options = base.map(profile => {
@@ -36,8 +37,4 @@ export default function TargetProfilesEditor({ base, diff, onChange }: Props) {
             {")"}
         </>
     );
-}
-
-function shortProfileName(profile: string): string {
-    return profile.replace(/^http:\/\/hl7\.org\/fhir\/StructureDefinition\//, "");
 }

@@ -8,6 +8,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ### Essential features
 
 - Support fixed URIs and strings
+- Support fields in nested types
 - Support extensional value sets
 - Support basic slicing
 

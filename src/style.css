@@ -66,10 +66,30 @@ select {
     background-color: inherit;
 }
 
+.select__control {
+    flex-wrap: nowrap !important;
+}
+
 .select__indicator-separator {
     display: none;
 }
 
+.select__single-value {
+    overflow: unset !important;
+}
+
+.select__menu-list {
+    background-color: lightgrey;
+}
+
 .select__input-container {
     display: none !important;
+}
+
+tr .hide-in-row {
+    visibility: hidden;
+}
+
+tr:hover .hide-in-row {
+    visibility: visible;
 }

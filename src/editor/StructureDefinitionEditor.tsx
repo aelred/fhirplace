@@ -1,9 +1,17 @@
+import { ElementTree } from "ElementTree";
 import { ElementDefinition, StructureDefinition, ValueSet } from "fhir/r5";
 import { ReactElement, useState } from "react";
 import { JsonView } from "react-json-view-lite";
 import 'react-json-view-lite/dist/index.css';
 import { AllResourceTypes, Path, STRUCTURE_DEFINITIONS } from "../fhir";
 import ElementDefinitionEditor from "./ElementDefinitionEditor";
+import ExpandableRow from "./ExpandableRow";
+
+type SnapshotSeparator = {
+    isSnapshotSeparator: true
+    id: string
+    path: string
+}
 
 export default function StructureDefinitionEditor() {
     const [name, setName] = useState<string>("MyProfile");
@@ -11,13 +19,18 @@ export default function StructureDefinitionEditor() {
     const [differentials, setDifferentials] = useState<{ [id: string]: ElementDefinition }>({})
 
     const [openElements, setOpenElements] = useState<{ [id: string]: boolean }>({})
+    const [openBases, setOpenBases] = useState<{ [id: string]: boolean }>({})
+
+    function isOpen(path: string): boolean {
+        return openElements[path] === true
+    }
+
+    function isBaseOpen(path: string): boolean {
+        return openBases[path] === true
+    }
 
     const baseDefinition = STRUCTURE_DEFINITIONS[type];
     const snapshot = baseDefinition.snapshot?.element || []
-
-    const visibleSnapshot = snapshot.filter(element =>
-        [...Path.parse(element.path).ancestors()].every(ancestor => openElements[ancestor.value()] !== false)
-    );
 
     const parentElements: { [path: string]: boolean } = {}
     for (var element of snapshot) {
@@ -25,8 +38,31 @@ export default function StructureDefinitionEditor() {
         if (parent) parentElements[parent.value()] = true
     }
 
+    const rows: (ElementDefinition | SnapshotSeparator)[] = ElementTree.from(snapshot).cata((element, childrenSets) => {
+        // TODO: keep elements in differential even when collapsed
+        if (Path.parse(element.path).parent() && !isOpen(element.path)) return [element]
+
+        const inDifferential: (ElementDefinition | SnapshotSeparator)[] = []
+        var inSnapshot: (ElementDefinition | SnapshotSeparator)[] = []
+
+        for (var children of childrenSets) {
+            const pushTo = children.some(child => child.id! in differentials) ? inDifferential : inSnapshot
+            for (var child of children) pushTo.push(child)
+        }
+
+        if (inSnapshot.length > 0) {
+            inDifferential.push({ isSnapshotSeparator: true, id: `${element.path}.$separator`, path: `${element.path}.$separator` })
+        }
+
+        if (!isBaseOpen(`${element.path}.$separator`)) {
+            inSnapshot = []
+        }
+
+        return [element].concat(inDifferential).concat(inSnapshot)
+    })
+
     function* orderedDifferentials(): Generator<ElementDefinition> {
-        for (var element of visibleSnapshot) {
+        for (var element of snapshot) {
             if (element.id! in differentials) {
                 yield differentials[element.id!];
             }
@@ -36,13 +72,13 @@ export default function StructureDefinitionEditor() {
     const indents: { [path: string]: boolean[] } = {}
     const nextIndents: { [path: string]: boolean[] } = {}
     var indent: boolean[] = []
-    for (var element of visibleSnapshot.toReversed()) {
-        nextIndents[element.path] = [...indent.slice(1)];
-        const level = (element.path.match(/\./g) || []).length;
+    for (var row of rows.toReversed()) {
+        nextIndents[row.path] = [...indent.slice(1)];
+        const level = (row.path.match(/\./g) || []).length;
         while (indent.length < level) indent.push(false);
         while (indent.length > level) indent.pop();
         indent[level] = true;
-        indents[element.path] = [...indent.slice(1)];
+        indents[row.path] = [...indent.slice(1)];
     }
 
     function showFhir(): StructureDefinition {
@@ -72,6 +108,10 @@ export default function StructureDefinitionEditor() {
         setOpenElements({ ...openElements, [path]: isOpen })
     }
 
+    function setOpenBase(path: string, isOpen: boolean) {
+        setOpenBases({ ...openBases, [path]: isOpen })
+    }
+
     return (<form>
         <h1><input value={name} onChange={e => setName(e.target.value)} placeholder="Name" className="subtle" /></h1>
         <select value={type} onChange={e => setType(e.target.value)}>
@@ -97,16 +137,35 @@ export default function StructureDefinitionEditor() {
                     </th>
                 </tr>
                 {
-                    visibleSnapshot.map(element => <ElementDefinitionEditor
-                        url={baseDefinition.url}
-                        base={element}
-                        diff={differentials[element.id!] || { id: element.id, path: element.path }}
-                        isOpen={parentElements[element.path] || (element.type?.length || 0) > 1 ? openElements[element.path] !== false : undefined}
-                        onChange={updateElement}
-                        setOpen={value => setOpen(element.path, value)}
-                        indent={indents[element.path]}
-                        nextIndent={nextIndents[element.path]}
-                    />)
+                    rows.map(row => {
+                        const indent = indents[row.path]
+                        const nextIndent = nextIndents[row.path]
+                        if (row.hasOwnProperty("isSnapshotSeparator")) {
+                            return <ExpandableRow
+                                key={row.id}
+                                name="Base"
+                                isOpen={isBaseOpen(row.path)}
+                                setOpen={value => setOpenBase(row.path, value)}
+                                hasChildren={true}
+                                indent={indent}
+                                nextIndent={nextIndent}
+                            />
+                        } else {
+                            const element: ElementDefinition = row
+                            return <ElementDefinitionEditor
+                                key={element.id}
+                                url={baseDefinition.url}
+                                base={element}
+                                diff={differentials[element.id!]}
+                                isOpen={parentElements[element.path] || (element.type?.length || 0) > 1 ? isOpen(element.path) : undefined}
+                                onChange={updateElement}
+                                setOpen={value => setOpen(element.path, value)}
+                                indent={indent}
+                                nextIndent={nextIndent}
+                            />
+                        }
+                    }
+                    )
                 }
             </tbody>
         </table>
@@ -122,7 +181,7 @@ export default function StructureDefinitionEditor() {
 function* getCodeOptions(valueSet: ValueSet): Generator<ReactElement> {
     for (var include of valueSet.compose?.include || []) {
         for (var concept of include.concept || []) {
-            yield <option value={concept.code} label={concept.code} />
+            yield <option key={concept.code} value={concept.code} label={concept.code} />
         }
     }
 }

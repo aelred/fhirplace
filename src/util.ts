@@ -11,3 +11,7 @@ export function assert(value: boolean) {
 export function capitalize(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export function unreachable(_value: never): never {
+    throw new Error(`ERROR! Reached forbidden guard function with unexpected value: ${JSON.stringify(_value)}`);
+}

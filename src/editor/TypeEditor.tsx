@@ -9,7 +9,7 @@ type Props = {
     onChange: (value: ElementDefinitionType) => void
 }
 
-export default function ({ base, diff, onChange }: Props): ReactElement | undefined {
+export default function TypeEditor({ base, diff, onChange }: Props): ReactElement | undefined {
     return (<span className="type">
         {getTypeCode(base)}
         {base.targetProfile &&

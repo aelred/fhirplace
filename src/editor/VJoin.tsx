@@ -7,8 +7,8 @@ import tbl_vjoin_end from 'hl7fhir/tbl_vjoin_end.png';
 
 type Props = {
     isOpen?: boolean
-    isLastChild: boolean
-    setOpen: (value: boolean) => void
+    isLastChild?: boolean
+    setOpen?: (value: boolean) => void
 }
 
 export default function VJoin({ isOpen, isLastChild, setOpen }: Props) {
@@ -19,6 +19,6 @@ export default function VJoin({ isOpen, isLastChild, setOpen }: Props) {
     );
 
     return <img src={joinImage} alt="." style={{ backgroundColor: "inherit" }} className="hierarchy" onClick={(_) => {
-        if (isOpen !== undefined) setOpen(!isOpen)
+        if (isOpen !== undefined && setOpen) setOpen(!isOpen)
     }} />;
 }
