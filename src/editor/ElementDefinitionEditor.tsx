@@ -1,32 +1,35 @@
-import { ElementDefinition } from "fhir/r5";
-import CardinalityEditor from "./CardinalityEditor";
-import ChoiceTypesEditor from "./ChoiceTypesEditor";
-import DescriptionEditor from "./DescriptionEditor";
-import ElementIcon from "./ElementIcon";
-import FlagsEditor from "./FlagsEditor";
-import Row from "./Row";
-import TypeEditor from "./TypeEditor";
+import { ElementDefinition } from "fhir/r5"
+import CardinalityEditor from "./CardinalityEditor"
+import ChoiceTypesEditor from "./ChoiceTypesEditor"
+import DescriptionEditor from "./DescriptionEditor"
+import ElementIcon from "./ElementIcon"
+import FlagsEditor from "./FlagsEditor"
+import Row from "./Row"
+import TypeEditor from "./TypeEditor"
 
 type Props = {
-    url: string;
-    base: ElementDefinition;
-    diff?: ElementDefinition;
-    isOpen?: boolean;
-    onChange: (element: ElementDefinition) => void;
-    setOpen: (open: boolean) => void;
-    indent: boolean[];
-    nextIndent: boolean[];
+    url: string
+    base: ElementDefinition
+    diff?: ElementDefinition
+    isOpen?: boolean
+    onChange: (element: ElementDefinition) => void
+    setOpen: (open: boolean) => void
+    indent: boolean[]
+    hasChildren: boolean
+    isLastChild: boolean
 }
 
-export default function ElementDefinitionEditor({ url, base, diff, isOpen, onChange, setOpen, indent, nextIndent }: Props) {
-    const name = base.path.replaceAll(/[^.]*\./g, "");
-    const baseTypes = base.type || [];
+export default function ElementDefinitionEditor({ url, base, diff, isOpen, onChange, setOpen, indent, hasChildren, isLastChild }: Props) {
+    const name = base.path.replaceAll(/[^.]*\./g, "")
+    const baseTypes = base.type || []
 
-    const nestedIndent = (baseTypes.length > 1 && isOpen) ? [...indent, true] : undefined;
+    const nestedIndent = (baseTypes.length > 1 && isOpen) ? [...indent, true] : undefined
 
     function merge(change: Partial<ElementDefinition>) {
         onChange({ ...(diff || { id: base.id, path: base.path }), ...change })
     }
+
+    const hasChoices = baseTypes.length > 1 && isOpen !== false
 
     return (<>
         <Row
@@ -39,15 +42,15 @@ export default function ElementDefinitionEditor({ url, base, diff, isOpen, onCha
             isOpen={isOpen}
             setOpen={setOpen}
             indent={indent}
-            nextIndent={nestedIndent || nextIndent}
+            hasChildren={hasChildren || hasChoices}
+            isLastChild={isLastChild}
         />
-        {baseTypes.length > 1 && isOpen !== false && <ChoiceTypesEditor
+        {hasChoices && <ChoiceTypesEditor
             base={baseTypes}
             diff={diff?.type}
             onChange={type => merge({ type })}
             elementName={name}
             indent={nestedIndent!}
-            nextIndent={nextIndent}
         />}
     </>)
 }

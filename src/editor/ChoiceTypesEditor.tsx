@@ -1,8 +1,8 @@
-import { ElementDefinitionType } from "fhir/r5";
-import { useState } from "react";
-import AddChoiceType from "./AddChoiceType";
-import ChoiceTypeEditor from "./ChoiceTypeEditor";
-import ExpandableRow from "./ExpandableRow";
+import { ElementDefinitionType } from "fhir/r5"
+import { useState } from "react"
+import AddChoiceType from "./AddChoiceType"
+import ChoiceTypeEditor from "./ChoiceTypeEditor"
+import ExpandableRow from "./ExpandableRow"
 
 type Props = {
     base: ElementDefinitionType[]
@@ -10,13 +10,12 @@ type Props = {
     onChange: (value: ElementDefinitionType[]) => void
     elementName: string
     indent: boolean[]
-    nextIndent: boolean[]
 }
 
 // TODO: display AddChoiceType when clicked
-export default function ChoiceTypesEditor({ base, diff, onChange, elementName, indent, nextIndent }: Props) {
-    const baseTypes = base || [];
-    const diffTypes = diff || baseTypes;
+export default function ChoiceTypesEditor({ base, diff, onChange, elementName, indent }: Props) {
+    const baseTypes = base || []
+    const diffTypes = diff || baseTypes
 
     const [isOpen, setOpen] = useState(false)
 
@@ -44,6 +43,8 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
         onChange(diffTypes.filter(t => t.code !== type.code))
     }
 
+    const displayUnselectedTypes = isOpen && unselectedTypes.length > 0
+
     return <>
         {diffTypes.map(type =>
             <ChoiceTypeEditor
@@ -54,7 +55,7 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
                 onRemove={() => onRemove(type)}
                 elementName={elementName}
                 indent={indent}
-                nextIndent={indent}
+                isLastChild={false}
             />
         )}
         <ExpandableRow
@@ -63,14 +64,14 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
             setOpen={setOpen}
             hasChildren={unselectedTypes.length > 0}
             indent={indent}
-            nextIndent={nextIndent}
+            isLastChild={!displayUnselectedTypes}
         />
         {
-            isOpen && unselectedTypes.length > 0 && <>
+            displayUnselectedTypes && <>
                 {unselectedTypes.slice(0, -1).map(type =>
-                    <AddChoiceType base={type} elementName={elementName} indent={indent} nextIndent={indent} onAdd={() => onAdd(type)} />
+                    <AddChoiceType base={type} elementName={elementName} indent={indent} isLastChild={false} onAdd={() => onAdd(type)} />
                 )}
-                <AddChoiceType base={unselectedTypes.at(-1)!} elementName={elementName} indent={indent} nextIndent={nextIndent} onAdd={() => onAdd(unselectedTypes.at(-1)!)} />
+                <AddChoiceType base={unselectedTypes.at(-1)!} elementName={elementName} indent={indent} isLastChild={true} onAdd={() => onAdd(unselectedTypes.at(-1)!)} />
             </>
         }
     </>

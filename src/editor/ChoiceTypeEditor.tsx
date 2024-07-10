@@ -1,10 +1,10 @@
-import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ElementDefinitionType } from "fhir/r5";
-import { capitalize } from "../util";
-import ElementIcon from "./ElementIcon";
-import Row from "./Row";
-import TypeEditor from "./TypeEditor";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ElementDefinitionType } from "fhir/r5"
+import { capitalize } from "../util"
+import ElementIcon from "./ElementIcon"
+import Row from "./Row"
+import TypeEditor from "./TypeEditor"
 
 type Props = {
     base: ElementDefinitionType
@@ -13,10 +13,10 @@ type Props = {
     onRemove: () => void
     elementName: string
     indent: boolean[]
-    nextIndent: boolean[]
+    isLastChild: boolean
 }
 
-export default function ChoiceTypeEditor({ base, diff, onChange, onRemove, elementName, indent, nextIndent }: Props) {
+export default function ChoiceTypeEditor({ base, diff, onChange, onRemove, elementName, indent, isLastChild }: Props) {
     return <Row
         icon={<ElementIcon types={[base]} />}
         name={`${elementName.substring(0, elementName.indexOf("[x]"))}${capitalize(base.code)}`}
@@ -30,6 +30,7 @@ export default function ChoiceTypeEditor({ base, diff, onChange, onRemove, eleme
         />}
         type={<TypeEditor base={base} diff={diff} onChange={onChange} />}
         indent={indent}
-        nextIndent={nextIndent}
+        hasChildren={false}
+        isLastChild={isLastChild}
     />
 }

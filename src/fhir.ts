@@ -1,23 +1,23 @@
-import { CodeSystem, CodeSystemConcept, ElementDefinition, ElementDefinitionType, StructureDefinition, ValueSet } from "fhir/r5";
-import "./util";
-import { assert, capitalize, toMap } from "./util";
+import { CodeSystem, CodeSystemConcept, ElementDefinition, ElementDefinitionType, StructureDefinition, ValueSet } from "fhir/r5"
+import "./util"
+import { assert, capitalize, toMap } from "./util"
 export const FhirTypes: CodeSystem = require("hl7.fhir.r5.core/CodeSystem-fhir-types.json")
 export const AllResourceTypes: ValueSet = require("hl7.fhir.r5.core/ValueSet-all-resource-types.json")
 
 function* getCodes(concept: CodeSystem | CodeSystemConcept): Generator<string> {
     if (concept.concept) {
         for (var inner of concept.concept) {
-            yield* getCodesFromConcept(inner);
+            yield* getCodesFromConcept(inner)
         }
     }
 }
 
 function* getCodesFromConcept(concept: CodeSystemConcept): Generator<string> {
-    yield concept.code;
-    yield* getCodes(concept);
+    yield concept.code
+    yield* getCodes(concept)
 }
 
-export const TYPES: string[] = [...getCodes(FhirTypes)];
+export const TYPES: string[] = [...getCodes(FhirTypes)]
 
 export const STRUCTURE_DEFINITIONS: { [index: string]: StructureDefinition } =
     toMap(TYPES, type => type, type => require(`hl7.fhir.r5.core/StructureDefinition-${type}.json`))
@@ -80,7 +80,7 @@ export enum ChoiceType {
 export const CHOICE_TYPES: ChoiceType[] = Object.values(ChoiceType)
 
 export function getTypeCode(type: ElementDefinitionType): string {
-    const extensions = type.extension || [];
+    const extensions = type.extension || []
     const typeExtension = extensions.find(ext => ext.url === "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type")?.valueUrl
     return typeExtension || type.code
 }
@@ -93,7 +93,7 @@ export function getFixedValue(elementDefinition: ElementDefinition): any | undef
 }
 
 export function shortProfileName(profile: string): string {
-    return profile.replace(/^http:\/\/hl7\.org\/fhir\/StructureDefinition\//, "");
+    return profile.replace(/^http:\/\/hl7\.org\/fhir\/StructureDefinition\//, "")
 }
 
 
@@ -107,10 +107,19 @@ export class Path {
         return new Path(value.split("."))
     }
 
+    field(): string {
+        return this.elements.at(-1)!
+    }
+
+    slice(start?: number | undefined, end?: number | undefined): Path | undefined {
+        const slice = this.elements.slice(start, end)
+        if (slice.length > 0) return new Path(slice)
+    }
+
     parent(): Path | undefined {
-        const parentElements = this.elements.slice(0, -1);
+        const parentElements = this.elements.slice(0, -1)
         if (parentElements.length > 0) {
-            return new Path(parentElements);
+            return new Path(parentElements)
         }
     }
 
@@ -120,10 +129,10 @@ export class Path {
     }
 
     *ancestors(): Generator<Path> {
-        var ancestor = this.parent();
+        var ancestor = this.parent()
         while (ancestor !== undefined) {
-            yield ancestor;
-            ancestor = ancestor.parent();
+            yield ancestor
+            ancestor = ancestor.parent()
         }
     }
 
