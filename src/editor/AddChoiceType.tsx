@@ -19,7 +19,7 @@ export default function AddChoiceType({ base, elementName, onAdd, indent, isLast
     return <Row
         icon={<ElementIcon types={[base]} />}
         name={<StrongIf condition={false}>{elementName.substring(0, elementName.indexOf("[x]"))}{capitalize(base.code)}</StrongIf>}
-        card={<FontAwesomeIcon
+        button={<FontAwesomeIcon
             className="hide-in-row"
             cursor="pointer"
             style={{ width: "16px", height: "16px" }}

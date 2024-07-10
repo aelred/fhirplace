@@ -16,9 +16,10 @@ type Props = {
     indent: boolean[]
     hasChildren: boolean
     isLastChild: boolean
+    button?: ReactNode
 }
 
-export default function Row({ icon, name, flags, card, type, description, isOpen, setOpen, indent, hasChildren, isLastChild }: Props) {
+export default function Row({ icon, name, flags, card, type, description, isOpen, setOpen, indent, hasChildren, isLastChild, button }: Props) {
     const thisIndent = [...indent]
     if (hasChildren) thisIndent.push(true)
 
@@ -35,6 +36,7 @@ export default function Row({ icon, name, flags, card, type, description, isOpen
             {icon}
             {" "}
             {name}
+            {button}
         </td>
         <td className="hierarchy">{flags}</td>
         <td className="hierarchy">{card}</td>

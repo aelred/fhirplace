@@ -20,7 +20,7 @@ export default function ChoiceTypeEditor({ base, diff, onChange, onRemove, eleme
     return <Row
         icon={<ElementIcon types={[base]} />}
         name={`${elementName.substring(0, elementName.indexOf("[x]"))}${capitalize(base.code)}`}
-        card={<FontAwesomeIcon
+        button={<FontAwesomeIcon
             className="hide-in-row"
             cursor="pointer"
             style={{ width: "16px", height: "16px" }}

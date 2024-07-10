@@ -88,6 +88,7 @@ select {
 
 tr .hide-in-row {
     visibility: hidden;
+    vertical-align: top;
 }
 
 tr:hover .hide-in-row {

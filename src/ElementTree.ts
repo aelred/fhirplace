@@ -4,7 +4,7 @@ import { ElementDefinition } from "fhir/r5"
 export class ElementTree {
     constructor(
         public readonly element: ElementDefinition | undefined,
-        public readonly children: ReadonlyMap<string, ElementTree>
+        readonly children: ReadonlyMap<string, ElementTree>
     ) { }
 
     static empty(): ElementTree {
@@ -24,6 +24,23 @@ export class ElementTree {
         }
 
         return root
+    }
+
+    nonEmpty(): boolean {
+        return !!this.element || [...this.children.values()].some(child => child.nonEmpty())
+    }
+
+    fields(): string[] {
+        return [...this.children.keys()].filter(field => this.has(field))
+    }
+
+    get(field: string): ElementTree | undefined {
+        const child = this.children.get(field)
+        return child?.nonEmpty() ? child : undefined
+    }
+
+    has(field: string): boolean {
+        return this.children.get(field)?.nonEmpty() || false
     }
 
     *trees(): Generator<ElementTree> {
@@ -59,7 +76,7 @@ export class ElementTree {
         return new ElementTree(this.element, newChildren)
     }
 
-    setElementDefinition(elementDefinition: ElementDefinition): ElementTree {
+    setElementDefinition(elementDefinition: ElementDefinition | undefined): ElementTree {
         return new ElementTree(elementDefinition, this.children)
     }
 }

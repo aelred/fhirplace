@@ -1,3 +1,5 @@
+import { faSquarePlus, faSquareXmark } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { ElementDefinition } from "fhir/r5"
 import CardinalityEditor from "./CardinalityEditor"
 import ChoiceTypesEditor from "./ChoiceTypesEditor"
@@ -12,7 +14,7 @@ type Props = {
     base: ElementDefinition
     diff?: ElementDefinition
     isOpen?: boolean
-    onChange: (element: ElementDefinition) => void
+    onChange: (element: ElementDefinition | undefined) => void
     setOpen: (open: boolean) => void
     indent: boolean[]
     hasChildren: boolean
@@ -25,8 +27,12 @@ export default function ElementDefinitionEditor({ url, base, diff, isOpen, onCha
 
     const nestedIndent = (baseTypes.length > 1 && isOpen) ? [...indent, true] : undefined
 
-    function merge(change: Partial<ElementDefinition>) {
-        onChange({ ...(diff || { id: base.id, path: base.path }), ...change })
+    function merge(change: Partial<ElementDefinition> | undefined) {
+        if (change) {
+            onChange({ ...(diff || { id: base.id, path: base.path }), ...change })
+        } else {
+            onChange(undefined)
+        }
     }
 
     const hasChoices = baseTypes.length > 1 && isOpen !== false
@@ -44,6 +50,14 @@ export default function ElementDefinitionEditor({ url, base, diff, isOpen, onCha
             indent={indent}
             hasChildren={hasChildren || hasChoices}
             isLastChild={isLastChild}
+            button={<FontAwesomeIcon
+                className="hide-in-row"
+                cursor="pointer"
+                style={{ width: "16px", height: "16px" }}
+                color={diff ? "red" : "green"}
+                icon={diff ? faSquareXmark : faSquarePlus}
+                onClick={e => merge(diff ? undefined : {})}
+            />}
         />
         {hasChoices && <ChoiceTypesEditor
             base={baseTypes}

@@ -20,7 +20,7 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
 
     const diff = differential || ElementTree.empty()
 
-    function updateElement(newElement: ElementDefinition) {
+    function updateElement(newElement: ElementDefinition | undefined) {
         onChange(diff.setElementDefinition(newElement))
     }
 
@@ -32,7 +32,7 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
 
     const displayChildren = hasChildren && (alwaysOpen || open)
 
-    const baseElements = [...base.children.entries()].filter(([field, _]) => !diff.children.has(field))
+    const baseElements = [...base.fields()].filter(field => !diff.has(field))
 
     const thisIndent = [...indent]
     if (isLastChild) thisIndent[thisIndent.length - 1] = false
@@ -40,13 +40,12 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
     const children = []
 
     if (displayChildren) {
-        for (var [field, childDiff] of diff.children.entries()) {
+        for (var field of diff.fields()) {
             const theField = field
-            const childBase = base.children.get(field)!
             children.push(<ElementTreeEditor
                 key={field}
-                base={childBase}
-                diff={childDiff}
+                base={base.get(field)!}
+                diff={diff.get(field)}
                 onChange={tree => setChild(theField, tree)}
                 url={url}
                 indent={thisIndent.concat([true])}
@@ -62,10 +61,10 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
             isLastChild={!openBase}
         />)
         if (openBase) {
-            baseElements.forEach(([field, childBase], index) => {
+            baseElements.forEach((field, index) => {
                 children.push(<ElementTreeEditor
                     key={field}
-                    base={childBase}
+                    base={base.get(field)!}
                     onChange={tree => setChild(field, tree)}
                     url={url}
                     indent={thisIndent.concat([true])}
