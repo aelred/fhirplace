@@ -24,7 +24,7 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
 
     function onChangeType(newType: ElementDefinitionType) {
         const newTypes = [...diff || []]
-        const existingIndex = newTypes.findIndex(type => type.code == newType.code)
+        const existingIndex = newTypes.findIndex(type => type.code === newType.code)
         if (existingIndex !== -1) {
             newTypes[existingIndex] = newType
         } else {
@@ -50,7 +50,7 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
             <ChoiceTypeEditor
                 key={type.code}
                 base={type}
-                diff={(diff || []).find(t => t.code == type.code)}
+                diff={(diff || []).find(t => t.code === type.code)}
                 onChange={onChangeType}
                 onRemove={() => onRemove(type)}
                 elementName={elementName}
@@ -62,16 +62,21 @@ export default function ChoiceTypesEditor({ base, diff, onChange, elementName, i
             name="Choices"
             isOpen={isOpen}
             setOpen={setOpen}
-            hasChildren={unselectedTypes.length > 0}
             indent={indent}
             isLastChild={!displayUnselectedTypes}
         />
         {
             displayUnselectedTypes && <>
-                {unselectedTypes.slice(0, -1).map(type =>
-                    <AddChoiceType base={type} elementName={elementName} indent={indent} isLastChild={false} onAdd={() => onAdd(type)} />
+                {unselectedTypes.map((type, idx) =>
+                    <AddChoiceType
+                        key={type.code}
+                        base={type}
+                        elementName={elementName}
+                        indent={indent}
+                        isLastChild={idx === unselectedTypes.length - 1}
+                        onAdd={() => onAdd(type)}
+                    />
                 )}
-                <AddChoiceType base={unselectedTypes.at(-1)!} elementName={elementName} indent={indent} isLastChild={true} onAdd={() => onAdd(unselectedTypes.at(-1)!)} />
             </>
         }
     </>

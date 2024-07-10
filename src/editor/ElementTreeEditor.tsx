@@ -41,12 +41,13 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
 
     if (displayChildren) {
         for (var [field, childDiff] of diff.children.entries()) {
+            const theField = field
             const childBase = base.children.get(field)!
             children.push(<ElementTreeEditor
                 key={field}
                 base={childBase}
                 diff={childDiff}
-                onChange={tree => setChild(field, tree)}
+                onChange={tree => setChild(theField, tree)}
                 url={url}
                 indent={thisIndent.concat([true])}
                 isLastChild={false}
@@ -57,7 +58,6 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
             name="Base"
             isOpen={openBase}
             setOpen={setOpenBase}
-            hasChildren={false}
             indent={thisIndent.concat([true])}
             isLastChild={!openBase}
         />)
@@ -80,7 +80,7 @@ export default function ElementTreeEditor({ base, diff: differential, onChange, 
             url={url}
             base={base.element!}
             diff={diff.element}
-            isOpen={hasChildren && !alwaysOpen || (base.element!.type?.length || 0) > 1 ? open : undefined}
+            isOpen={(hasChildren && !alwaysOpen) || (base.element!.type?.length || 0) > 1 ? open : undefined}
             onChange={updateElement}
             setOpen={setOpen}
             indent={thisIndent}
